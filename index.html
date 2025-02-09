@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignación de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Asignación de Tareas Semanales</h1>
+        <p id="fechaActual"></p>
+        <div class="schedule" id="schedule">
+            <!-- Las asignaciones se generarán dinámicamente con JavaScript -->
+        </div>
+        <button id="nextWeek">Siguiente Semana</button>
+    </div>
+
+    <script>
+        // Lista de personas
+        const personas = [
+            "Persona 1", "Persona 2", "Persona 3", "Persona 4", 
+            "Persona 5", "Persona 6", "Persona 7", "Persona 8", 
+            "Persona 9", "Persona 10", "Persona 11", "Persona 12", 
+            "Persona 13", "Persona 14"
+        ];
+
+        // Días de la semana
+        const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+
+        // Variable para llevar el control de la semana actual
+        let semanaActual = 0;
+
+        // Establecer la fecha de inicio al lunes 10 de febrero de 2025
+        let fechaActual = new Date(2025, 1, 10); // Recuerda que el mes de enero es 0
+
+        // Función para formatear la fecha
+        function formatearFecha(fecha) {
+            const opciones = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            return fecha.toLocaleDateString('es-ES', opciones);
+        }
+
+        // Función para generar las asignaciones de la semana
+        function generarAsignaciones() {
+            const schedule = document.getElementById("schedule");
+            schedule.innerHTML = ""; // Limpiamos el contenido anterior
+
+            // Rotamos las personas según la semana actual
+            const personasRotadas = rotarPersonas(personas, semanaActual);
+
+            // Asignamos personas a los días
+            let indicePersona = 0;
+
+            for (let i = 0; i < dias.length; i++) {
+                // Crear un día y calcular la fecha
+                const dia = document.createElement("div");
+                dia.className = "day";
+
+                // Calcular la fecha para cada día de la semana según la semanaActual
+                const diaActual = new Date(fechaActual);
+                diaActual.setDate(fechaActual.getDate() + (i + (semanaActual * 7))); 
+
+                const titulo = document.createElement("h2");
+                titulo.textContent = formatearFecha(diaActual); // Mostrar fecha completa
+                dia.appendChild(titulo);
+
+                // Asignar tareas según el día
+                if (dias[i] === "Martes" || dias[i] === "Jueves" || dias[i] === "Domingo") {
+                    const tarea1 = document.createElement("p");
+                    tarea1.textContent = `Le toca la puerta a: ${personasRotadas[indicePersona]}`;
+                    dia.appendChild(tarea1);
+                    indicePersona++;
+
+                    const tarea2 = document.createElement("p");
+                    tarea2.textContent = `Organizar las motos: ${personasRotadas[indicePersona]}`;
+                    dia.appendChild(tarea2);
+                    indicePersona++;
+                } else {
+                    const tarea = document.createElement("p");
+                    tarea.textContent = `Le toca la puerta a: ${personasRotadas[indicePersona]}`;
+                    dia.appendChild(tarea);
+                    indicePersona++;
+                }
+
+                schedule.appendChild(dia);
+            }
+        }
+
+        // Función para rotar las personas
+        function rotarPersonas(personas, semana) {
+            // Usamos el módulo para rotar de manera infinita
+            const rotacion = semana % personas.length; // Rotación infinita
+            return [...personas.slice(rotacion), ...personas.slice(0, rotacion)];
+        }
+
+        // Función para avanzar a la siguiente semana
+        function siguienteSemana() {
+            if (semanaActual > 0 && semanaActual % 8 === 0) {
+                // Si hemos avanzado 8 días, reiniciamos la semana actual para iniciar
+                semanaActual++;
+                fechaActual.setDate(fechaActual.getDate() + 8); // Avanzamos 8 días
+            } else {
+                semanaActual++;
+            }
+
+            generarAsignaciones();
+        }
+
+        // Generar las asignaciones iniciales
+        generarAsignaciones();
+
+        // Evento del botón para avanzar a la siguiente semana
+        document.getElementById("nextWeek").addEventListener("click", siguienteSemana);
+    </script>
+</body>
+</html>
