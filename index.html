@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asignación de Tareas</title>
+    <title>Servicio IDMJI</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Asignación de Tareas Semanales</h1>
+        <h1>Servicio IDMJI</h1>
+       
         <p id="fechaActual"></p>
         <div id="diaActual">
             <!-- Aquí se mostrará el día actual -->
@@ -16,139 +17,151 @@
         <div class="schedule" id="schedule">
             <!-- Las asignaciones se generarán dinámicamente con JavaScript -->
         </div>
-        <button id="prevWeek">Dias Anteriores</button>
-        <button id="nextWeek">Dias Siguientes </button>
+        <div class="buttons">
+            <button id="prevWeek">Ver Semana Anterior</button>
+            <button id="nextWeek">Ver Siguiente Semana</button>
+        </div>
     </div>
 
     <script>
-        // Lista de personas
-        const personas = [
-            "Oscar Peñata", "Jhony González ", "Carlos Cierra", "Jorge Peñata", 
-            "Deiver Luis", "Jairo Hernández", "Daniel Morales", "Esteban Martinez", 
-            "Marco Osorio", "Abraham González"
-        ];
+// Lista de personas
+const personas = [
+    "Oscar Peñata", "Jhony González", "Carlos Cierra", "Jorge Peñata", 
+    "Deiver Galván", "Jairo Hernández", "Daniel Morales", "Esteban Martinez", 
+    "Marco Osorio", "Abraham González"
+];
 
-        // Días de la semana
-        const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+// Días de la semana
+const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
-        // Variable para llevar el control de la semana actual
-        let semanaActual = 0;
+// Variable para llevar el control de la semana actual
+let semanaActual = 0;
 
-        // Obtener la fecha actual
-        const hoy = new Date();
-        const fechaActual = new Date(hoy);
+// Obtener la fecha actual
+const hoy = new Date();
+const fechaActual = new Date(hoy);
 
-        // Función para formatear la fecha
-        function formatearFecha(fecha) {
-            const opciones = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-            return fecha.toLocaleDateString('es-ES', opciones);
-        }
+// Función para formatear la fecha
+function formatearFecha(fecha) {
+    const opciones = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    return fecha.toLocaleDateString('es-ES', opciones);
+}
 
-        // Función para obtener el inicio de la semana (lunes)
-        function obtenerInicioSemana(fecha) {
-            const diaSemana = fecha.getDay(); // 0 (domingo) a 6 (sábado)
-            const diferencia = diaSemana === 0 ? 6 : diaSemana - 1; // Ajuste para que el lunes sea el inicio
-            const inicioSemana = new Date(fecha);
-            inicioSemana.setDate(fecha.getDate() - diferencia);
-            return inicioSemana;
-        }
+// Función para obtener el inicio de la semana (lunes)
+function obtenerInicioSemana(fecha) {
+    const diaSemana = fecha.getDay(); // 0 (domingo) a 6 (sábado)
+    const diferencia = diaSemana === 0 ? 6 : diaSemana - 1; // Ajuste para que el lunes sea el inicio
+    const inicioSemana = new Date(fecha);
+    inicioSemana.setDate(fecha.getDate() - diferencia);
+    return inicioSemana;
+}
 
-        // Función para mostrar el día actual
-        function mostrarDiaActual() {
-            const diaActualElemento = document.getElementById("diaActual");
-            const diaActual = formatearFecha(hoy);
-            diaActualElemento.innerHTML = `<h2>Hoy es: ${diaActual}</h2>`;
-        }
+// Función para mostrar el día actual
+function mostrarDiaActual() {
+    const diaActualElemento = document.getElementById("diaActual");
+    const diaActual = formatearFecha(hoy);
+    diaActualElemento.innerHTML = `<h2>Hoy es: ${diaActual}</h2>`;
+}
 
-        // Función para generar las asignaciones de la semana
-        function generarAsignaciones() {
-            const schedule = document.getElementById("schedule");
-            schedule.innerHTML = ""; // Limpiamos el contenido anterior
+// Función para verificar la disponibilidad de una persona en un día
+function esDisponible(persona, dia) {
+    const noDisponibles = {
+        "Oscar Peñata": ["Jueves", "Sábado"],
+        "Daniel Morales": ["Martes", "Sábado", "Domingo"]
+    };
+    return !(noDisponibles[persona] && noDisponibles[persona].includes(dia));
+}
 
-            // Rotamos las personas según la semana actual
-            const personasRotadas = rotarPersonas(personas, semanaActual);
+// Función para generar las asignaciones de la semana
+function generarAsignaciones() {
+    const schedule = document.getElementById("schedule");
+    schedule.innerHTML = ""; // Limpiamos el contenido anterior
 
-            // Obtener el inicio de la semana actual
-            const inicioSemana = obtenerInicioSemana(fechaActual);
+    // Rotamos las personas según la semana actual
+    const personasRotadas = rotarPersonas(personas, semanaActual);
 
-            // Asignamos personas a los días
-            let indicePersona = 0;
+    // Obtener el inicio de la semana actual
+    const inicioSemana = obtenerInicioSemana(fechaActual);
 
-            for (let i = 0; i < dias.length; i++) {
-                // Calcular la fecha para cada día de la semana
-                const diaFecha = new Date(inicioSemana);
-                diaFecha.setDate(inicioSemana.getDate() + i);
+    // Asignamos personas a los días
+    let indicePersona = 0;
 
-                // Solo mostrar días a partir del día actual
-                if (diaFecha >= hoy) {
-                    const dia = document.createElement("div");
-                    dia.className = "day";
+    for (let i = 0; i < dias.length; i++) {
+        // Calcular la fecha para cada día de la semana
+        const diaFecha = new Date(inicioSemana);
+        diaFecha.setDate(inicioSemana.getDate() + i);
 
-                    // Mostrar la fecha del día
-                    const titulo = document.createElement("h2");
-                    titulo.textContent = formatearFecha(diaFecha);
-                    dia.appendChild(titulo);
+        // Solo mostrar días a partir del día actual
+        if (diaFecha >= hoy) {
+            const dia = document.createElement("div");
+            dia.className = "day";
 
-                    // Asignar tareas según el día
-                    if (dias[i] === "Jueves" || dias[i] === "Domingo") {
-                        const tarea1 = document.createElement("p");
-                        tarea1.textContent = `Le toca la puerta a: ${personasRotadas[indicePersona]}`;
-                        dia.appendChild(tarea1);
-                        indicePersona++;
+            // Mostrar la fecha del día
+            const titulo = document.createElement("h2");
+            titulo.textContent = formatearFecha(diaFecha);
+            dia.appendChild(titulo);
 
-                        const tarea2 = document.createElement("p");
-                        tarea2.textContent = `Organizar las motos: ${personasRotadas[indicePersona]}`;
-                        dia.appendChild(tarea2);
-                        indicePersona++;
-                    } else {
-                        const tarea = document.createElement("p");
-                        tarea.textContent = `Le toca la puerta a: ${personasRotadas[indicePersona]}`;
-                        dia.appendChild(tarea);
+            // Asignar tareas según el día
+            if (dias[i] === "Jueves" || dias[i] === "Domingo") {
+                for (let j = 0; j < 2; j++) {
+                    while (!esDisponible(personasRotadas[indicePersona], dias[i])) {
                         indicePersona++;
                     }
-
-                    schedule.appendChild(dia);
+                    const tipoServicio = j === 0 ? 'puerta' : 'motos';
+                    const tarea = document.createElement("p");
+                    tarea.textContent = `Servicio ${tipoServicio}: ${personasRotadas[indicePersona]}`;
+                    dia.appendChild(tarea);
+                    indicePersona++;
                 }
+            } else {
+                while (!esDisponible(personasRotadas[indicePersona], dias[i])) {
+                    indicePersona++;
+                }
+                const tarea = document.createElement("p");
+                tarea.textContent = `Servicio puerta: ${personasRotadas[indicePersona]}`;
+                dia.appendChild(tarea);
+                indicePersona++;
             }
+
+            schedule.appendChild(dia);
         }
+    }
+}
 
-        // Función para rotar las personas
-        function rotarPersonas(personas, semana) {
-            const rotacion = semana * 2; // Rotamos de 2 en 2 para evitar repeticiones
-            return [...personas.slice(rotacion), ...personas.slice(0, rotacion)];
-        }
+// Función para rotar las personas de manera infinita
+function rotarPersonas(personas, semana) {
+    const rotacion = (semana * 2) % personas.length; // Rotación infinita
+    return [...personas.slice(rotacion), ...personas.slice(0, rotacion)];
+}
 
-        // Función para avanzar a la siguiente semana
-        function siguienteSemana() {
-            semanaActual++;
-            fechaActual.setDate(fechaActual.getDate() + 7); // Avanzamos 7 días
-            generarAsignaciones();
-        }
+// Función para avanzar a la siguiente semana
+function siguienteSemana() {
+    semanaActual++;
+    fechaActual.setDate(fechaActual.getDate() + 7); // Avanzamos 7 días
+    generarAsignaciones();
+}
 
-        // Función para retroceder a la semana anterior
-        function semanaAnterior() {
-            if (semanaActual > 0) {
-                semanaActual--;
-                fechaActual.setDate(fechaActual.getDate() - 7); // Retrocedemos 7 días
-                generarAsignaciones();
-            }
-        }
-
-        // Mostrar la fecha actual
-        const fechaActualElemento = document.getElementById("fechaActual");
-        fechaActualElemento.textContent = `Fecha actual: ${formatearFecha(hoy)}`;
-
-        // Mostrar el día actual
-        mostrarDiaActual();
-
-        // Generar las asignaciones iniciales
+// Función para retroceder a la semana anterior
+function semanaAnterior() {
+    if (semanaActual > 0) {
+        semanaActual--;
+        fechaActual.setDate(fechaActual.getDate() - 7); // Retrocedemos 7 días
         generarAsignaciones();
+    }
+}
 
-        // Evento del botón para avanzar a la siguiente semana
-        document.getElementById("nextWeek").addEventListener("click", siguienteSemana);
 
-        // Evento del botón para retroceder a la semana anterior
-        document.getElementById("prevWeek").addEventListener("click", semanaAnterior);
+// Mostrar el día actual
+mostrarDiaActual();
+
+// Generar las asignaciones iniciales
+generarAsignaciones();
+
+// Evento del botón para avanzar a la siguiente semana
+document.getElementById("nextWeek").addEventListener("click", siguienteSemana);
+
+// Evento del botón para retroceder a la semana anterior
+document.getElementById("prevWeek").addEventListener("click", semanaAnterior);
     </script>
 </body>
 </html>
