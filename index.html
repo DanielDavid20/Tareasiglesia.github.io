@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Servicio IDMJI</title>
+    <title>Puerta</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Servicio IDMJI</h1>
+        <h1>Puerta 🚪 🏍️</h1>
        
         <p id="fechaActual"></p>
         <div id="diaActual">
@@ -17,6 +17,7 @@
         <div class="schedule" id="schedule">
             <!-- Las asignaciones se generarán dinámicamente con JavaScript -->
         </div>
+        <h2>¡Para ver el horario deseado le recomiendo presionar estos botones 👇!</h2>
         <div class="buttons">
             <button id="prevWeek">Ver Semana Anterior</button>
             <button id="nextWeek">Ver Siguiente Semana</button>
@@ -26,9 +27,9 @@
     <script>
 // Lista de personas
 const personas = [
-    "Oscar Peñata", "Jhony González", "Carlos Cierra", "Jorge Peñata", 
-    "Deiver Galván", "Jairo Hernández", "Daniel Morales", "Esteban Martinez", 
-    "Marco Osorio", "Abraham González"
+    "Abraham González",  "Carlos Cierra", "Jorge Peñata", "Deiver Galván", 
+    "Jairo Hernández", "Daniel Morales", "Esteban Martinez" , 
+    "Marco Osorio", "Oscar Peñata", "Jhony González", 
 ];
 
 // Días de la semana
@@ -37,9 +38,9 @@ const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "
 // Variable para llevar el control de la semana actual
 let semanaActual = 0;
 
-// Obtener la fecha actual
-const hoy = new Date();
-const fechaActual = new Date(hoy);
+// Fecha fija inicial: 9 de febrero de 2025
+const fechaInicial = new Date(2025, 1, 9); // Meses en JavaScript son 0-indexados (1 = febrero)
+let fechaActual = new Date(fechaInicial);
 
 // Función para formatear la fecha
 function formatearFecha(fecha) {
@@ -59,8 +60,8 @@ function obtenerInicioSemana(fecha) {
 // Función para mostrar el día actual
 function mostrarDiaActual() {
     const diaActualElemento = document.getElementById("diaActual");
-    const diaActual = formatearFecha(hoy);
-    diaActualElemento.innerHTML = `<h2>Hoy es: ${diaActual}</h2>`;
+    const diaActual = formatearFecha(fechaActual);
+   
 }
 
 // Función para verificar la disponibilidad de una persona en un día
@@ -89,40 +90,37 @@ function generarAsignaciones() {
         const diaFecha = new Date(inicioSemana);
         diaFecha.setDate(inicioSemana.getDate() + i);
 
-        // Solo mostrar días a partir del día actual
-        if (diaFecha >= hoy) {
-            const dia = document.createElement("div");
-            dia.className = "day";
+        const dia = document.createElement("div");
+        dia.className = "day";
 
-            // Mostrar la fecha del día
-            const titulo = document.createElement("h2");
-            titulo.textContent = formatearFecha(diaFecha);
-            dia.appendChild(titulo);
+        // Mostrar la fecha del día
+        const titulo = document.createElement("h2");
+        titulo.textContent = formatearFecha(diaFecha);
+        dia.appendChild(titulo);
 
-            // Asignar tareas según el día
-            if (dias[i] === "Jueves" || dias[i] === "Domingo") {
-                for (let j = 0; j < 2; j++) {
-                    while (!esDisponible(personas[indicePersona], dias[i])) {
-                        indicePersona = (indicePersona + 1) % personas.length; // Rotamos si no está disponible
-                    }
-                    const tipoServicio = j === 0 ? 'puerta' : 'motos';
-                    const tarea = document.createElement("p");
-                    tarea.textContent = `Servicio ${tipoServicio}: ${personas[indicePersona]}`;
-                    dia.appendChild(tarea);
-                    indicePersona = (indicePersona + 1) % personas.length; // Pasamos al siguiente
-                }
-            } else {
+        // Asignar tareas según el día
+        if (dias[i] === "Jueves" || dias[i] === "Domingo") {
+            for (let j = 0; j < 2; j++) {
                 while (!esDisponible(personas[indicePersona], dias[i])) {
                     indicePersona = (indicePersona + 1) % personas.length; // Rotamos si no está disponible
                 }
+                const tipoServicio = j === 0 ? 'puerta' : 'motos';
                 const tarea = document.createElement("p");
-                tarea.textContent = `Servicio puerta: ${personas[indicePersona]}`;
+                tarea.textContent = `Encargado de ${tipoServicio}: ${personas[indicePersona]}`;
                 dia.appendChild(tarea);
                 indicePersona = (indicePersona + 1) % personas.length; // Pasamos al siguiente
             }
-
-            schedule.appendChild(dia);
+        } else {
+            while (!esDisponible(personas[indicePersona], dias[i])) {
+                indicePersona = (indicePersona + 1) % personas.length; // Rotamos si no está disponible
+            }
+            const tarea = document.createElement("p");
+            tarea.textContent = `Encargado de puerta: ${personas[indicePersona]}`;
+            dia.appendChild(tarea);
+            indicePersona = (indicePersona + 1) % personas.length; // Pasamos al siguiente
         }
+
+        schedule.appendChild(dia);
     }
 }
 
