@@ -78,14 +78,11 @@ function generarAsignaciones() {
     const schedule = document.getElementById("schedule");
     schedule.innerHTML = ""; // Limpiamos el contenido anterior
 
-    // Rotamos las personas según la semana actual
-    const personasRotadas = rotarPersonas(personas, semanaActual);
-
     // Obtener el inicio de la semana actual
     const inicioSemana = obtenerInicioSemana(fechaActual);
 
     // Asignamos personas a los días
-    let indicePersona = 0;
+    let indicePersona = semanaActual % personas.length; // Iniciar desde un índice basado en la semana
 
     for (let i = 0; i < dias.length; i++) {
         // Calcular la fecha para cada día de la semana
@@ -105,38 +102,28 @@ function generarAsignaciones() {
             // Asignar tareas según el día
             if (dias[i] === "Jueves" || dias[i] === "Domingo") {
                 for (let j = 0; j < 2; j++) {
-                    while (!esDisponible(personasRotadas[indicePersona], dias[i]) && indicePersona < personasRotadas.length) {
-                        indicePersona++;
+                    while (!esDisponible(personas[indicePersona], dias[i])) {
+                        indicePersona = (indicePersona + 1) % personas.length; // Rotamos si no está disponible
                     }
-                    if (indicePersona < personasRotadas.length) {
-                        const tipoServicio = j === 0 ? 'puerta' : 'motos';
-                        const tarea = document.createElement("p");
-                        tarea.textContent = `Servicio ${tipoServicio}: ${personasRotadas[indicePersona]}`;
-                        dia.appendChild(tarea);
-                        indicePersona++;
-                    }
-                }
-            } else { // Para otros días
-                while (!esDisponible(personasRotadas[indicePersona], dias[i]) && indicePersona < personasRotadas.length) {
-                    indicePersona++;
-                }
-                if (indicePersona < personasRotadas.length) {
+                    const tipoServicio = j === 0 ? 'puerta' : 'motos';
                     const tarea = document.createElement("p");
-                    tarea.textContent = `Servicio puerta: ${personasRotadas[indicePersona]}`;
+                    tarea.textContent = `Servicio ${tipoServicio}: ${personas[indicePersona]}`;
                     dia.appendChild(tarea);
-                    indicePersona++;
+                    indicePersona = (indicePersona + 1) % personas.length; // Pasamos al siguiente
                 }
+            } else {
+                while (!esDisponible(personas[indicePersona], dias[i])) {
+                    indicePersona = (indicePersona + 1) % personas.length; // Rotamos si no está disponible
+                }
+                const tarea = document.createElement("p");
+                tarea.textContent = `Servicio puerta: ${personas[indicePersona]}`;
+                dia.appendChild(tarea);
+                indicePersona = (indicePersona + 1) % personas.length; // Pasamos al siguiente
             }
 
             schedule.appendChild(dia);
         }
     }
-}
-
-// Función para rotar las personas de manera infinita
-function rotarPersonas(personas, semana) {
-    const rotacion = (semana) % personas.length; // Rotación infinita según la semana
-    return [...personas.slice(rotacion), ...personas.slice(0, rotacion)];
 }
 
 // Función para avanzar a la siguiente semana
