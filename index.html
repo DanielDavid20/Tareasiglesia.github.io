@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Servicio IDMJI</title>
+    <title>Puerta</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -109,7 +109,7 @@ function generarAsignaciones() {
                     }
                     const tipoServicio = j === 0 ? 'puerta' : 'motos';
                     const tarea = document.createElement("p");
-                    tarea.textContent = `Servicio ${tipoServicio}: ${personasRotadas[indicePersona]}`;
+                    tarea.textContent = `Encargado-${tipoServicio}: ${personasRotadas[indicePersona]}`;
                     dia.appendChild(tarea);
                     indicePersona++;
                 }
@@ -118,7 +118,7 @@ function generarAsignaciones() {
                     indicePersona++;
                 }
                 const tarea = document.createElement("p");
-                tarea.textContent = `Servicio puerta: ${personasRotadas[indicePersona]}`;
+                tarea.textContent = `Encargado-puerta🚪: ${personasRotadas[indicePersona]}`;
                 dia.appendChild(tarea);
                 indicePersona++;
             }
