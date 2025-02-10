@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puerta</title>
+    <title>Servicio IDMJI</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Puerta</h1>
+        <h1>Servicio IDMJI</h1>
        
         <p id="fechaActual"></p>
         <div id="diaActual">
@@ -26,8 +26,8 @@
     <script>
 // Lista de personas
 const personas = [
-    "Oscar Peñata", "Jhony González", "Carlos Cierra", "Jorge Peñata", 
-    "Deiver Galván", "Jairo Hernández", "Daniel Morales", "Esteban Martinez", 
+    "Oscar Peñata", "Jhony González", "Carlos Cierra", "Jorge Peñata",
+    "Deiver Galván", "Jairo Hernández", "Daniel Morales", "Esteban Martinez",
     "Marco Osorio", "Abraham González"
 ];
 
@@ -38,8 +38,9 @@ const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "
 let semanaActual = 0;
 
 // Obtener la fecha actual
-const hoy = new Date();
-const fechaActual = new Date(hoy);
+let hoy = new Date();
+const fechaInicial = new Date(2025, 1, 9); // Establecer la fecha inicial
+let fechaActual = new Date(hoy);
 
 // Función para formatear la fecha
 function formatearFecha(fecha) {
@@ -59,7 +60,7 @@ function obtenerInicioSemana(fecha) {
 // Función para mostrar el día actual
 function mostrarDiaActual() {
     const diaActualElemento = document.getElementById("diaActual");
-    const diaActual = formatearFecha(hoy);
+    const diaActual = formatearFecha(fechaActual);
     diaActualElemento.innerHTML = `<h2>Hoy es: ${diaActual}</h2>`;
 }
 
@@ -67,7 +68,8 @@ function mostrarDiaActual() {
 function esDisponible(persona, dia) {
     const noDisponibles = {
         "Oscar Peñata": ["Jueves", "Sábado"],
-        "Daniel Morales": ["Martes", "Sábado", "Domingo"]
+        "Daniel Morales": ["Martes", "Sábado", "Domingo"],
+        "Deiver Galván": ["Sábado"],
     };
     return !(noDisponibles[persona] && noDisponibles[persona].includes(dia));
 }
@@ -109,7 +111,7 @@ function generarAsignaciones() {
                     }
                     const tipoServicio = j === 0 ? 'puerta' : 'motos';
                     const tarea = document.createElement("p");
-                    tarea.textContent = `Encargado-${tipoServicio}: ${personasRotadas[indicePersona]}`;
+                    tarea.textContent = `Servicio ${tipoServicio}: ${personasRotadas[indicePersona]}`;
                     dia.appendChild(tarea);
                     indicePersona++;
                 }
@@ -118,7 +120,7 @@ function generarAsignaciones() {
                     indicePersona++;
                 }
                 const tarea = document.createElement("p");
-                tarea.textContent = `Encargado-puerta: ${personasRotadas[indicePersona]}`;
+                tarea.textContent = `Servicio puerta: ${personasRotadas[indicePersona]}`;
                 dia.appendChild(tarea);
                 indicePersona++;
             }
@@ -150,6 +152,17 @@ function semanaAnterior() {
     }
 }
 
+// Función para comprobar y avanzar si está en una nueva semana
+function comprobarNuevaSemana() {
+    const inicioSemanaActual = obtenerInicioSemana(hoy);
+    const inicioSemanaSiguiente = new Date(inicioSemanaActual);
+    inicioSemanaSiguiente.setDate(inicioSemanaSiguiente.getDate() + 7);
+
+    // Si la fecha actual es mayor o igual al inicio de la próxima semana, avanzamos a la siguiente semana
+    if (hoy >= inicioSemanaSiguiente) {
+        siguienteSemana();
+    }
+}
 
 // Mostrar el día actual
 mostrarDiaActual();
@@ -157,8 +170,15 @@ mostrarDiaActual();
 // Generar las asignaciones iniciales
 generarAsignaciones();
 
+// Verificar si hay que avanzar a la siguiente semana automáticamente
+comprobarNuevaSemana();
+
 // Evento del botón para avanzar a la siguiente semana
-document.getElementById("nextWeek").addEventListener("click", siguienteSemana);
+document.getElementById("nextWeek").addEventListener("click", () => {
+    semanaActual++;
+    fechaActual.setDate(fechaActual.getDate() + 7);
+    generarAsignaciones();
+});
 
 // Evento del botón para retroceder a la semana anterior
 document.getElementById("prevWeek").addEventListener("click", semanaAnterior);
