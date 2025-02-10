@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Puerta</title>
     <link rel="stylesheet" href="styles.css">
+
 </head>
 <body>
     <div class="container">
         <h1>Puerta 🚪 🏍️</h1>
        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Buscar...">
+            <button id="searchButton">Buscar</button>
+        </div>
+
         <p id="fechaActual"></p>
         <div id="diaActual">
             <!-- Aquí se mostrará el día actual -->
@@ -23,20 +29,16 @@
             <button id="nextWeek">Ver Siguiente Semana</button>
         </div>
     </div>
-
     <script>
 // Lista de personas
 const personas = [
-    "Abraham González",  "Carlos Cierra", "Jorge Peñata", "Deiver Galván", 
-    "Jairo Hernández", "Daniel Morales", "Esteban Martinez" , 
-    "Marco Osorio", "Oscar Peñata", "Jhony González", 
+    "Abraham González", "Carlos Cierra", "Jorge Peñata", "Deiver Galván",
+    "Jairo Hernández", "Daniel Morales", "Esteban Martinez",
+    "Marco Osorio", "Oscar Peñata", "Jhony González",
 ];
 
 // Días de la semana
 const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-
-// Variable para llevar el control de la semana actual
-let semanaActual = 0;
 
 // Fecha fija inicial: 9 de febrero de 2025
 const fechaInicial = new Date(2025, 1, 9); // Meses en JavaScript son 0-indexados (1 = febrero)
@@ -57,13 +59,6 @@ function obtenerInicioSemana(fecha) {
     return inicioSemana;
 }
 
-// Función para mostrar el día actual
-function mostrarDiaActual() {
-    const diaActualElemento = document.getElementById("diaActual");
-    const diaActual = formatearFecha(fechaActual);
-   
-}
-
 // Función para verificar la disponibilidad de una persona en un día
 function esDisponible(persona, dia) {
     const noDisponibles = {
@@ -74,35 +69,29 @@ function esDisponible(persona, dia) {
     return !(noDisponibles[persona] && noDisponibles[persona].includes(dia));
 }
 
-// Función para generar las asignaciones de la semana
-function generarAsignaciones() {
+// Función para generar las asignaciones para una semana dada
+function generarAsignaciones(semanaInicio) {
     const schedule = document.getElementById("schedule");
-    schedule.innerHTML = ""; // Limpiamos el contenido anterior
-
-    // Obtener el inicio de la semana actual
-    const inicioSemana = obtenerInicioSemana(fechaActual);
+    const inicioSemana = obtenerInicioSemana(semanaInicio);
+    
+    let indicePersona = Math.floor((semanaInicio.getTime() - fechaInicial.getTime()) / (1000 * 60 * 60 * 24 * 7)) % personas.length; // Indice basado en la semana
 
     // Asignamos personas a los días
-    let indicePersona = semanaActual % personas.length; // Iniciar desde un índice basado en la semana
-
     for (let i = 0; i < dias.length; i++) {
-        // Calcular la fecha para cada día de la semana
         const diaFecha = new Date(inicioSemana);
         diaFecha.setDate(inicioSemana.getDate() + i);
 
         const dia = document.createElement("div");
         dia.className = "day";
 
-        // Mostrar la fecha del día
         const titulo = document.createElement("h2");
         titulo.textContent = formatearFecha(diaFecha);
         dia.appendChild(titulo);
 
-        // Asignar tareas según el día
         if (dias[i] === "Jueves" || dias[i] === "Domingo") {
             for (let j = 0; j < 2; j++) {
                 while (!esDisponible(personas[indicePersona], dias[i])) {
-                    indicePersona = (indicePersona + 1) % personas.length; // Rotamos si no está disponible
+                    indicePersona = (indicePersona + 1) % personas.length;
                 }
                 const tipoServicio = j === 0 ? 'puerta' : 'motos';
                 const tarea = document.createElement("p");
@@ -121,36 +110,106 @@ function generarAsignaciones() {
         }
 
         schedule.appendChild(dia);
+
+// Agregar un título y un salto de línea entre el lunes y el domingo
+if (dias[i] === "Domingo") {
+    const tituloFinDeSemana = document.createElement("h1");
+    tituloFinDeSemana.textContent = "Fin de Semana";
+    schedule.appendChild(tituloFinDeSemana);
+    
+    // Crear un div para el salto de línea con margen
+    const saltoLinea = document.createElement("div");
+    saltoLinea.style.marginBottom = "20px"; // Ajusta el valor según lo necesites
+    schedule.appendChild(saltoLinea);
+}
     }
 }
 
-// Función para avanzar a la siguiente semana
-function siguienteSemana() {
-    semanaActual++;
-    fechaActual.setDate(fechaActual.getDate() + 7); // Avanzamos 7 días
-    generarAsignaciones();
-}
+// Función para generar todas las semanas hasta el final de 2025
+function generarTodasLasSemanas() {
+    const fechaFinal = new Date(2025, 11, 31); // Final de 2025
+    let fechaSemanaActual = new Date(fechaInicial);
 
-// Función para retroceder a la semana anterior
-function semanaAnterior() {
-    if (semanaActual > 0) {
-        semanaActual--;
-        fechaActual.setDate(fechaActual.getDate() - 7); // Retrocedemos 7 días
-        generarAsignaciones();
+    while (fechaSemanaActual <= fechaFinal) {
+        generarAsignaciones(fechaSemanaActual);
+        fechaSemanaActual.setDate(fechaSemanaActual.getDate() + 7); // Avanzamos a la siguiente semana
     }
 }
 
-// Mostrar el día actual
-mostrarDiaActual();
+// Generar todas las semanas al cargar la página
+generarTodasLasSemanas();
 
-// Generar las asignaciones iniciales
-generarAsignaciones();
-
-// Evento del botón para avanzar a la siguiente semana
-document.getElementById("nextWeek").addEventListener("click", siguienteSemana);
-
-// Evento del botón para retroceder a la semana anterior
-document.getElementById("prevWeek").addEventListener("click", semanaAnterior);
     </script>
+
+    <script>// Función para manejar la búsqueda
+    // Función para manejar la búsqueda
+document.getElementById('searchButton').addEventListener('click', function() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const scheduleDiv = document.getElementById('schedule');
+    const paragraphs = scheduleDiv.getElementsByTagName('p');
+    const titles = scheduleDiv.getElementsByTagName('h2');
+    let found = false;
+
+    // Limpiar resaltados anteriores
+    clearHighlights();
+
+    // Buscar en los títulos
+    for (let i = 0; i < titles.length; i++) {
+        if (titles[i].textContent.toLowerCase().includes(query)) {
+            highlightText(titles[i], query);
+            titles[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            found = true;
+            break;
+        }
+    }
+
+    // Buscar en los párrafos
+    if (!found) {
+        for (let i = 0; i < paragraphs.length; i++) {
+            if (paragraphs[i].textContent.toLowerCase().includes(query)) {
+                highlightText(paragraphs[i], query);
+                paragraphs[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                found = true;
+                break;
+            }
+        }
+    }
+
+    if (!found) {
+        alert('No se encontraron coincidencias.');
+    }
+});
+
+// Función para resaltar el texto buscado
+function highlightText(element, query) {
+    const regex = new RegExp(`(${query})`, 'gi');
+    element.innerHTML = element.textContent.replace(regex, '<span class="highlight">$1</span>');
+}
+
+// Función para limpiar resaltados anteriores
+function clearHighlights() {
+    const highlights = document.querySelectorAll('.highlight');
+    highlights.forEach(highlight => {
+        highlight.replaceWith(highlight.textContent); // Reemplaza el <span> por el texto original
+    });
+}
+function establecerFechaActual() {
+            const fechaActual = new Date();
+            const opciones = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const fechaFormateada = fechaActual.toLocaleDateString('es-ES', opciones);
+            document.getElementById('searchInput').value = fechaFormateada; // Establece la fecha formateada en el campo de búsqueda
+        }
+
+        // Llama a la función al cargar la página
+        establecerFechaActual();
+
+        // Aquí va tu script JavaScript para la lógica de la página...
+        // (el resto de tu código JavaScript va aquí)
+
+        window.onload = function() {
+            // Simular un clic en el botón "Buscar".
+            document.getElementById('searchButton').click();
+        };
+       </script>
 </body>
 </html>
