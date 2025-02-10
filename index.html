@@ -26,8 +26,8 @@
     <script>
 // Lista de personas
 const personas = [
-    "Oscar Peñata", "Jhony González", "Carlos Cierra", "Jorge Peñata",
-    "Deiver Galván", "Jairo Hernández", "Daniel Morales", "Esteban Martinez",
+    "Oscar Peñata", "Jhony González", "Carlos Cierra", "Jorge Peñata", 
+    "Deiver Galván", "Jairo Hernández", "Daniel Morales", "Esteban Martinez", 
     "Marco Osorio", "Abraham González"
 ];
 
@@ -38,9 +38,8 @@ const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "
 let semanaActual = 0;
 
 // Obtener la fecha actual
-let hoy = new Date();
-const fechaInicial = new Date(2025, 1, 9); // Establecer la fecha inicial
-let fechaActual = new Date(hoy);
+const hoy = new Date();
+const fechaActual = new Date(hoy);
 
 // Función para formatear la fecha
 function formatearFecha(fecha) {
@@ -60,7 +59,7 @@ function obtenerInicioSemana(fecha) {
 // Función para mostrar el día actual
 function mostrarDiaActual() {
     const diaActualElemento = document.getElementById("diaActual");
-    const diaActual = formatearFecha(fechaActual);
+    const diaActual = formatearFecha(hoy);
     diaActualElemento.innerHTML = `<h2>Hoy es: ${diaActual}</h2>`;
 }
 
@@ -106,23 +105,27 @@ function generarAsignaciones() {
             // Asignar tareas según el día
             if (dias[i] === "Jueves" || dias[i] === "Domingo") {
                 for (let j = 0; j < 2; j++) {
-                    while (!esDisponible(personasRotadas[indicePersona], dias[i])) {
+                    while (!esDisponible(personasRotadas[indicePersona], dias[i]) && indicePersona < personasRotadas.length) {
                         indicePersona++;
                     }
-                    const tipoServicio = j === 0 ? 'puerta' : 'motos';
+                    if (indicePersona < personasRotadas.length) {
+                        const tipoServicio = j === 0 ? 'puerta' : 'motos';
+                        const tarea = document.createElement("p");
+                        tarea.textContent = `Servicio ${tipoServicio}: ${personasRotadas[indicePersona]}`;
+                        dia.appendChild(tarea);
+                        indicePersona++;
+                    }
+                }
+            } else { // Para otros días
+                while (!esDisponible(personasRotadas[indicePersona], dias[i]) && indicePersona < personasRotadas.length) {
+                    indicePersona++;
+                }
+                if (indicePersona < personasRotadas.length) {
                     const tarea = document.createElement("p");
-                    tarea.textContent = `Servicio ${tipoServicio}: ${personasRotadas[indicePersona]}`;
+                    tarea.textContent = `Servicio puerta: ${personasRotadas[indicePersona]}`;
                     dia.appendChild(tarea);
                     indicePersona++;
                 }
-            } else {
-                while (!esDisponible(personasRotadas[indicePersona], dias[i])) {
-                    indicePersona++;
-                }
-                const tarea = document.createElement("p");
-                tarea.textContent = `Servicio puerta: ${personasRotadas[indicePersona]}`;
-                dia.appendChild(tarea);
-                indicePersona++;
             }
 
             schedule.appendChild(dia);
@@ -132,7 +135,7 @@ function generarAsignaciones() {
 
 // Función para rotar las personas de manera infinita
 function rotarPersonas(personas, semana) {
-    const rotacion = (semana * 2) % personas.length; // Rotación infinita
+    const rotacion = (semana) % personas.length; // Rotación infinita según la semana
     return [...personas.slice(rotacion), ...personas.slice(0, rotacion)];
 }
 
@@ -152,33 +155,14 @@ function semanaAnterior() {
     }
 }
 
-// Función para comprobar y avanzar si está en una nueva semana
-function comprobarNuevaSemana() {
-    const inicioSemanaActual = obtenerInicioSemana(hoy);
-    const inicioSemanaSiguiente = new Date(inicioSemanaActual);
-    inicioSemanaSiguiente.setDate(inicioSemanaSiguiente.getDate() + 7);
-
-    // Si la fecha actual es mayor o igual al inicio de la próxima semana, avanzamos a la siguiente semana
-    if (hoy >= inicioSemanaSiguiente) {
-        siguienteSemana();
-    }
-}
-
 // Mostrar el día actual
 mostrarDiaActual();
 
 // Generar las asignaciones iniciales
 generarAsignaciones();
 
-// Verificar si hay que avanzar a la siguiente semana automáticamente
-comprobarNuevaSemana();
-
 // Evento del botón para avanzar a la siguiente semana
-document.getElementById("nextWeek").addEventListener("click", () => {
-    semanaActual++;
-    fechaActual.setDate(fechaActual.getDate() + 7);
-    generarAsignaciones();
-});
+document.getElementById("nextWeek").addEventListener("click", siguienteSemana);
 
 // Evento del botón para retroceder a la semana anterior
 document.getElementById("prevWeek").addEventListener("click", semanaAnterior);
