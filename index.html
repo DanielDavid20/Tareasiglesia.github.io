@@ -31,9 +31,9 @@
     <script>
 // Lista de personas
 const personas = [
- "Hermano Jairo Hernández", "Hermano Carlos Cierra", "Hermano Jorge Peñata",
- "Daniel Morales",  "Hermano Marco Osorio", "Hermano Esteban Martinez",
-"Hermano Oscar Peñata", "Hermano Abraham González", "Hermano Jhony González", "Hermano Deiver Galván"
+ "Hno. Jairo Hernández", "Hno. Carlos Cierra", "Hno. Jorge Peñata",
+ "Hno. Daniel Morales",  "Hno. Marco Osorio", "Hno. Esteban Martinez",
+"Hno. Oscar Peñata", "Hno. Abraham González", "Hno. Jhony González", "Hno. Deiver Galván"
 ];
 
 // Días de la semana
@@ -61,9 +61,9 @@ function obtenerInicioSemana(fecha) {
 // Función para verificar la disponibilidad de una persona en un día
 function esDisponible(persona, dia) {
     const noDisponibles = {
-        "Oscar Peñata": ["Jueves", "Sábado"],
-        "Daniel Morales": ["Martes", "Sábado", "Domingo"],
-        "Deiver Galván": ["Sábado"],
+        "Hno. Oscar Peñata": ["Jueves", "Sábado"],
+        "Hno. Daniel Morales": ["Martes", "Sábado", "Domingo"],
+        "Hno. Deiver Galván": ["Sábado"],
     };
     return !(noDisponibles[persona] && noDisponibles[persona].includes(dia));
 }
